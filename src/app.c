@@ -14,11 +14,17 @@ size_t handle_result(void *buffer, size_t size, size_t nmemb, void *userp)
     return nmemb;
 }
 
+void menu()
+{
+    char keyword[100];
+    fprintf(stdout, "Type a keyword to search for an anime, manga, etc: ");
+    fgets(keyword, 100, stdin);
+    search_anime(keyword, handle_result);
+}
+
 void run_app()
 {
     init_libcurl();
-
-    search_anime("Trigun", handle_result);
-
+    menu();
     cleanup_libcurl();
 }
