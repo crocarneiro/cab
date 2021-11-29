@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <curl/curl.h>
 
@@ -11,13 +13,23 @@ void cleanup_libcurl()
     curl_global_cleanup();
 }
 
-int search_anime(size_t (*f)(void *, size_t, size_t, void *))
+int search_anime(char *keyword, size_t (*f)(void *, size_t, size_t, void *))
 {
     CURL *hnd = curl_easy_init();
 
+    char *final_keyword = NULL;
+    final_keyword = curl_easy_escape(hnd, keyword, strlen(keyword));
+
+    char *default_url = "https://jikan1.p.rapidapi.com/search/anime?q=%s";
+    char *final_url = (char *) malloc(sizeof(char) * (strlen(final_keyword) + strlen(default_url) + 1));
+    sprintf(final_url, default_url, final_keyword);
+
     curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "GET");
-    curl_easy_setopt(hnd, CURLOPT_URL, "https://jikan1.p.rapidapi.com/search/anime?q=Attack%20on%%20Titan");
+    curl_easy_setopt(hnd, CURLOPT_URL, final_url);
     curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, f);
+
+    free(final_url);
+    free(final_keyword);
 
     struct curl_slist *headers = NULL;
     headers = curl_slist_append(headers, "x-rapidapi-host: jikan1.p.rapidapi.com");
@@ -25,7 +37,10 @@ int search_anime(size_t (*f)(void *, size_t, size_t, void *))
     curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
 
     CURLcode ret = curl_easy_perform(hnd);
-
+    if(ret != CURLE_OK)
+    {
+        fprintf(stderr, "Error making request: %s.", curl_easy_strerror(ret));
+    }
 
     return 0;
 }
