@@ -13,7 +13,7 @@ void cleanup_libcurl()
     curl_global_cleanup();
 }
 
-int search_anime(char *keyword, size_t (*f)(void *, size_t, size_t, void *))
+int search_anime(char *keyword, size_t (*callback_function)(void *, size_t, size_t, void *))
 {
     CURL *hnd = curl_easy_init();
 
@@ -26,7 +26,7 @@ int search_anime(char *keyword, size_t (*f)(void *, size_t, size_t, void *))
 
     curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "GET");
     curl_easy_setopt(hnd, CURLOPT_URL, final_url);
-    curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, f);
+    curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, callback_function);
 
     free(final_url);
     free(final_keyword);
@@ -34,6 +34,7 @@ int search_anime(char *keyword, size_t (*f)(void *, size_t, size_t, void *))
     struct curl_slist *headers = NULL;
     headers = curl_slist_append(headers, "x-rapidapi-host: jikan1.p.rapidapi.com");
     headers = curl_slist_append(headers, "x-rapidapi-key: 6ea44ecb6bmshc9babab79bd5d63p154df5jsn297905bedb4c");
+    //headers = curl_slist_append(headers, "Content-Type: application/json; charset=utf-8");
     curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
 
     CURLcode ret = curl_easy_perform(hnd);
