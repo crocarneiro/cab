@@ -1,0 +1,4 @@
+*.o
+cab.exe
+src/*.o
+src/cab.exe
